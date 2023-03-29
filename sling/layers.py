@@ -2,6 +2,7 @@ import jax
 import jax.numpy as jnp
 import math
 from flax import linen as nn
+EPSILON = 1e-8
 
 def get_delta_x(x):
     return jnp.expand_dims(x, -3) - jnp.expand_dims(x, -2)
@@ -10,6 +11,7 @@ def get_distance(x):
     x_minus_xt_norm = (
         jax.nn.relu((x ** 2).sum(axis=-1, keepdims=True))
     )
+    return x_minus_xt_norm
 
 def cosine_cutoff(x, lower=0.0, upper=5.0):
     cutoffs = 0.5 * (
@@ -75,19 +77,23 @@ class SlingLayer(nn.Module):
     out_features : int
     def setup(self):
         self.smearing = ExpNormalSmearing()
-        self.fc = nn.Linear(
+        self.fc = nn.Dense(
+            self.hidden_features, use_bias=False,
+        )
+
+        self.fc_edge = nn.Dense(
             self.hidden_features, use_bias=False,
         )
 
         self.fc_summary = nn.Sequential(
             [
-                nn.Linear(self.hidden_features),
+                nn.Dense(self.hidden_features),
                 jax.nn.sigmoid,
-                nn.Linear(1),
+                nn.Dense(1),
             ]
         )
 
-    def __call__(self, x, h):
+    def __call__(self, h, x):
         # (n, c)
         h = self.fc(h)
 
@@ -98,20 +104,20 @@ class SlingLayer(nn.Module):
         distance = get_distance(delta_x)
 
         # (n, n, 3)
-        delta_x_norm = delta_x / jnp.linalg.norm(
-            delta_x, ord=2, axis=-1, keepdims=True)
+        delta_x_norm = delta_x / (jnp.linalg.norm(
+            delta_x, ord=2, axis=-1, keepdims=True) + EPSILON)
         
         # (n, n, c)
-        h_e_vec = self.smearing(distance)
+        h_e_vec = self.fc_edge(self.smearing(distance))
 
         # (n, n, c, 3)
-        h_e_vec = jnp.expan_dims(h_e_vec, -1) * jnp.expand_dims(h_e_vec, -2)
+        h_e_vec = jnp.expand_dims(h_e_vec, -1) * jnp.expand_dims(delta_x_norm, -2)
 
         # (n, n, c)
         edge_scalar_embedding = jnp.expand_dims(h, -2) + jnp.expand_dims(h, -3)
 
         # (n, n, c, 3)
-        combination = jnp.expand_dims(edge_scalar_embedding, -2) * h_e_vec
+        combination = jnp.expand_dims(edge_scalar_embedding, -1) * h_e_vec
 
         # (n, n, c)
         combination_norm = (combination ** 2).sum(-1)
@@ -119,13 +125,5 @@ class SlingLayer(nn.Module):
         # (n, n, 1)
         combination_energy = self.fc_summary(combination_norm)
 
-        # (n, 1)
-        energy = combination_energy.sum(-2)
-        return energy
-
-        
-
-        
-
-
-
+        return combination_energy
+    
