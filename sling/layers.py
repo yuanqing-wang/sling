@@ -72,7 +72,6 @@ class ExpNormalSmearing(nn.Module):
     
 
 class SlingLayer(nn.Module):
-    in_features : int
     hidden_features : int
     out_features : int
     def setup(self):
@@ -101,11 +100,10 @@ class SlingLayer(nn.Module):
         delta_x = get_delta_x(x)
 
         # (n, n, 1)
-        distance = get_distance(delta_x)
+        distance = get_distance(delta_x) + EPSILON
 
         # (n, n, 3)
-        delta_x_norm = delta_x / (jnp.linalg.norm(
-            delta_x, ord=2, axis=-1, keepdims=True) + EPSILON)
+        delta_x_norm = delta_x / (jax.nn.relu((delta_x ** 2).sum(axis=-1, keepdims=True) + EPSILON) ** 0.5)
         
         # (n, n, c)
         h_e_vec = self.fc_edge(self.smearing(distance))
@@ -123,7 +121,7 @@ class SlingLayer(nn.Module):
         combination_norm = (combination ** 2).sum(-1)
 
         # (n, n, 1)
-        combination_energy = self.fc_summary(combination_norm)
+        combination_energy = self.fc_summary(combination_norm).sum(axis=(-2, -3))
 
         return combination_energy
     

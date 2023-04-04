@@ -1,0 +1,49 @@
+Sender: LSF System <lsfadmin@lx14>
+Subject: Job 16196129: <python run.py malonaldehyde> in cluster <lila> Exited
+
+Job <python run.py malonaldehyde> was submitted from host <lf02> by user <wangy1> in cluster <lila> at Tue Apr  4 08:47:57 2023
+Job was executed on host(s) <lx14>, in queue <gpuqueue>, as user <wangy1> in cluster <lila> at Tue Apr  4 08:47:57 2023
+</home/wangy1> was used as the home directory.
+</lila/data/chodera/wangyq/sling/scripts/md17> was used as the working directory.
+Started at Tue Apr  4 08:47:57 2023
+Terminated at Tue Apr  4 08:48:59 2023
+Results reported at Tue Apr  4 08:48:59 2023
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+python run.py malonaldehyde
+------------------------------------------------------------
+
+Exited with exit code 1.
+
+Resource usage summary:
+
+    CPU time :                                   43.00 sec.
+    Max Memory :                                 2 GB
+    Average Memory :                             0.84 GB
+    Total Requested Memory :                     5.00 GB
+    Delta Memory :                               3.00 GB
+    Max Swap :                                   -
+    Max Processes :                              3
+    Max Threads :                                34
+    Run time :                                   63 sec.
+    Turnaround time :                            62 sec.
+
+The output (if any) follows:
+
+2023-04-04 08:48:38.551913: W tensorflow/compiler/xla/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libnvinfer.so.7'; dlerror: libnvinfer.so.7: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /admin/lsflilac/lsf/10.1/linux3.10-glibc2.17-x86_64/lib:/usr/local/cuda-11.7/lib64:/usr/local/cuda-11.7/lib:/usr/local/cuda-11.7/targets/x86_64-linux/lib/:/home/wangy1/miniconda3/envs/esp/lib/
+2023-04-04 08:48:38.552218: W tensorflow/compiler/xla/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libnvinfer_plugin.so.7'; dlerror: libnvinfer_plugin.so.7: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /admin/lsflilac/lsf/10.1/linux3.10-glibc2.17-x86_64/lib:/usr/local/cuda-11.7/lib64:/usr/local/cuda-11.7/lib:/usr/local/cuda-11.7/targets/x86_64-linux/lib/:/home/wangy1/miniconda3/envs/esp/lib/
+2023-04-04 08:48:38.552245: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Cannot dlopen some TensorRT libraries. If you would like to use Nvidia GPU with TensorRT, please make sure the missing libraries mentioned above are installed properly.
+  0%|          | 0/2000 [00:00<?, ?it/s]  0%|          | 0/2000 [00:07<?, ?it/s]
+Traceback (most recent call last):
+  File "/lila/data/chodera/wangyq/sling/scripts/md17/run.py", line 129, in <module>
+    run(sys.argv[1])
+  File "/lila/data/chodera/wangyq/sling/scripts/md17/run.py", line 125, in run
+    save_checkpoint("_" + data_name, target=state, step=idx_batch, keep=99999)
+  File "/home/wangy1/miniconda3/envs/sake/lib/python3.10/site-packages/flax/training/checkpoints.py", line 533, in save_checkpoint
+    _check_overwrite_error(ckpt_tmp_path, ckpt_path, base_path, step)
+  File "/home/wangy1/miniconda3/envs/sake/lib/python3.10/site-packages/flax/training/checkpoints.py", line 435, in _check_overwrite_error
+    raise errors.InvalidCheckpointError(ckpt_path, step)
+flax.errors.InvalidCheckpointError: Trying to save an outdated checkpoint at step: "0" and path: "_malonaldehyde/checkpoint_0". (https://flax.readthedocs.io/en/latest/api_reference/flax.errors.html#flax.errors.InvalidCheckpointError)

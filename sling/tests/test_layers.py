@@ -5,7 +5,7 @@ def test_layer():
     import jax
     import jax.numpy as jnp
     from sling.layers import SlingLayer
-    layer = SlingLayer(4, 8, 16)
+    layer = SlingLayer(8, 16)
     h = jnp.array(onp.random.randn(2, 4))
     x = jnp.array(onp.random.randn(2, 3))
     params = layer.init(jax.random.PRNGKey(2666), h, x)
@@ -16,7 +16,7 @@ def test_invariance(_equivariance_test_utils):
     import jax
     import jax.numpy as jnp
     from sling.layers import SlingLayer
-    layer = SlingLayer(4, 8, 16)
+    layer = SlingLayer(8, 16)
     
     h0, x0, translation, rotation, reflection = _equivariance_test_utils
     params = layer.init(jax.random.PRNGKey(2666), h0, x0)
